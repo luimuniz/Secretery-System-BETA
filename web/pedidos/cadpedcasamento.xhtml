@@ -1,0 +1,64 @@
+<ui:composition template="/WEB-INF/template/layoutpadrao.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="titulo">Novo Pedido de Certidão de Casamento</ui:define>
+
+    <ui:define name="corpo">
+        <p:growl id="msgGlobal" life="3000"/>
+        <h:form>
+            <p:messages/>
+            <h1>Novo Pedido Certidão de Casamento</h1>
+
+            <p:toolbar style="margin-top: 20px">
+                <p:toolbarGroup>
+                    <p:button value="Novo" outcome="/pedidos/cadpedcasamento"/>
+                    <p:commandButton value="Salvar" id="botaoSalvar" update="@form"
+                                     action="#{pedidoCasamentoBean.novoPedidoCasamento()}" />
+                </p:toolbarGroup>
+                <p:toolbarGroup align="right">
+                    <p:button value="Pesquisa"  />
+                    <p:button value="Novo Fiel" outcome="/fiel/cadfiel" />
+                    
+                </p:toolbarGroup>
+            </p:toolbar>
+
+            <p:panelGrid columns="2" id="painel" style="width: 100%; margin-top: 20px"
+                         columnClasses="rotulo, campo">
+
+                <p:outputLabel value="Nome Completo" for="nome"/>
+                <p:autoComplete id="nome" size="60" maxlength="80" required="true"
+                             requiredMessage="O nome do fiel deve ser informado!"
+                             value="#{pedidoCasamentoBean.pedido.fiel}"  completeMethod="#{pedidoCasamentoBean.sugerirFieis}" 
+                          converter="fiel"   var="f" itemLabel="#{f.nome}" itemValue="#{f}" 
+                          forceSelection="true" onkeypress="return nomes(event)" />
+                <p:outputLabel value="Nome dos Conjugues" for="certidao"/>
+                <p:autoComplete id="certidao" size="60" maxlength="80" required="true"
+                             requiredMessage="Os nomes dos conjugues devem ser informados!"
+                             value="#{pedidoCasamentoBean.pedido.certidao}"  completeMethod="#{pedidoCasamentoBean.sugerirCasamentos}" 
+                          converter="casamento"   var="c" itemLabel="#{c.noivo.nome} e #{c.noiva.nome}" itemValue="#{c}" 
+                          forceSelection="true" onkeypress="return nomes(event)" />
+                
+                <p:outputLabel value="Status:" for="status"/>
+                <p:selectOneListbox id="status"   required="true"
+                                    requiredMessage="Informe o STATUS!" value="#{pedidoCasamentoBean.pedido.status}">
+                    <f:selectItem itemLabel="Pendente" itemValue="PENDENTE"/>
+                    <f:selectItem itemLabel="Aprovado" itemValue="APROVADO" itemDisabled="true"/>
+                    <f:selectItem itemLabel="Rejeitado" itemValue="REJEITADO" itemDisabled="true"/>
+                    <f:selectItem itemLabel="Impresso" itemValue="IMPRESSO" itemDisabled="true"/>
+                </p:selectOneListbox>
+                
+                   
+                    <p:outputLabel value="Valor" for="valor"/>
+                    <p:inputText id="valor" type="number"  styleClass="moeda" value="#{pedidoCasamentoBean.pedido.valor}"/>
+                     
+                       </p:panelGrid>
+            
+                    </h:form>
+        
+   
+    </ui:define>
+</ui:composition>

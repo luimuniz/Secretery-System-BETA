@@ -1,0 +1,162 @@
+<ui:composition template="/WEB-INF/template/layoutpadrao.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="titulo">Fieis Cadastrados</ui:define>
+            <ui:define name="corpo">
+                <p:growl id="msgGlobal" life="3000"/>
+              <h:form id="frmFielListagem">
+            <p:dataTable id="tblFieis" emptyMessage="Nenhum fiel encontrado."
+                         value="#{fielBean.fieis}" var="fiel"
+                         widgetVar="tabelaFieis"
+      
+                         paginator="true" rows="8">
+                <f:facet name="header">
+                    Lista de Fieis
+                </f:facet>
+                <p:column headerText="ID" sortBy="#{fiel.id}"
+                         >
+                    <h:outputText value="#{fiel.id}"/>
+                </p:column>
+
+                <p:column headerText="Nome" sortBy="#{fiel.nome}"
+                          filterBy="#{fiel.nome}">
+                    <h:outputText value="#{fiel.nome}"/>
+                </p:column>
+                
+                <p:column headerText="Data de Nascimento" sortBy="#{fiel.nome}"
+                          filterBy="#{fiel.dataNascimento}">
+                    <h:outputText value="#{fiel.dataNascimento}" >
+                         <f:convertDateTime pattern="dd/MM/yyyy"/>
+                     </h:outputText>
+                </p:column>
+                <p:column headerText="Opções">
+                    
+                    <p:commandButton icon="ui-icon-pencil"
+                     oncomplete="PF('dlgFielEditar').show()"
+                     update=":frmFielEditar:pnlFielEditar">
+                        <f:setPropertyActionListener target="#{fielBean.fiel}"
+                                                     value="#{fiel}"/>
+                     </p:commandButton>
+                    <p:commandButton icon="ui-icon-document"
+                     oncomplete="PF('dlgFielVer').show()"
+                     update=":frmFielVer:pnlFielVer">
+                        <f:setPropertyActionListener target="#{fielBean.fiel}"
+                                                     value="#{fiel}"/>
+                     </p:commandButton>
+                </p:column>
+                <f:facet name="footer">
+                    
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+                <p:dialog widgetVar="dlgFielEditar" closable="true" draggable="false"
+                  resizable="false" modal="true" appendTo="@(body)" 
+                  header="Editar Fiel">
+            <h:form id="frmFielEditar">
+                <p:panelGrid columns="2" id="pnlFielEditar" style="width: 100%; margin-top: 20px"
+                         columnClasses="rotulo, campo" >
+
+                <p:outputLabel value="Nome Completo" for="nome"/>
+                <p:inputText id="nome" size="60" maxlength="80" required="true"
+                             requiredMessage="O nome do fiel deve ser informado!"
+                             value="#{fielBean.fiel.nome}" />
+                <p:outputLabel value="Data de Nascimento:" for="dataNascimento"/>
+                <p:calendar id="dataNascimento" required="false" value="#{fielBean.fiel.dataNascimento}"
+                            pattern="dd/MM/yyyy" readonlyInput="true" navigator="true"
+                            locale="pt" />
+                <p:outputLabel value="Sexo:" for="sexo"/>
+                <p:selectOneRadio id="sexo"  layout="pageDirection" required="true"
+                                  requiredMessage="Informe o sexo!" value="#{fielBean.fiel.sexo}"
+                                  >
+                    <f:selectItem itemLabel="Masculino" itemValue="M"/>
+                    <f:selectItem itemLabel="Feminino" itemValue="F"/>
+                </p:selectOneRadio>
+                <p:outputLabel value="Estado Civil" for="estadoCivil" />
+                
+                    <p:selectOneRadio id="estadoCivil" layout="pageDirection"
+                                      required="true" requiredMessage="Informe o estado civil!"
+                                      value="#{fielBean.fiel.estadoCivil}" >
+                        <f:selectItem itemLabel="Solteiro(a)" itemValue="SOLTEIRO(A)"/>
+                        <f:selectItem  itemLabel="Casado(a)" itemValue="CASADO(A)"/>
+                    </p:selectOneRadio>
+                    
+               
+                   <p:outputLabel value="Telefone" for="telefone" />
+                    <p:inputMask id="telefone" mask="(99)99999-9999"
+                                 value="#{fielBean.fiel.telefone}"  />
+                     <p:outputLabel value="Bairro" for="bairro"/>
+                     <p:inputText id="bairro"  size="20" maxlength="50" 
+                                  value="#{fielBean.fiel.bairro}"  />  
+                    
+                     <p:outputLabel value="Cidade" for="cidade"/>
+                    <p:autoComplete id="cidade" value="#{fielBean.fiel.cidade}"
+                          completeMethod="#{fielBean.sugerirCidades}" 
+                          converter="cidade"  required="true" size="20" var="c"
+                          itemLabel="#{c.nome} - #{c.estado}" itemValue="#{c}" 
+                          forceSelection="true" />
+                    
+                    
+                    <p:outputLabel value="CEP" for="cep" />
+                    <p:inputMask id="cep" mask="99999999" required="true" value="#{fielBean.fiel.cep}" 
+                                />
+            </p:panelGrid>
+            
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Gravar Edição" 
+                                     actionListener="#{fielBean.editarFiel()}"
+                                  update=":frmFielListagem:tblFieis :msgGlobal"
+                                  oncomplete="PF('dlgFielEditar').hide()"/>
+                    
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+        
+                <!-- Dialogo de visualização -->
+             <p:dialog widgetVar="dlgFielVer" closable="true" draggable="false"
+                  resizable="false" modal="true" appendTo="@(body)" 
+                  header="Dados do Fiel" >
+            <h:form id="frmFielVer">
+                <p:panelGrid columns="2" id="pnlFielVer" style="width: 100%; margin-top: 20px"
+                         columnClasses="rotulo, campo" >
+
+                <p:outputLabel value="Nome Completo" for="nome"/>
+                <h:outputText id="nome" value="#{fielBean.fiel.nome}" />
+                <p:outputLabel value="Data de Nascimento:" for="dataNascimento"/>
+                <h:outputText id="dataNascimento"  value="#{fielBean.fiel.dataNascimento}" >
+                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                </h:outputText>
+                <p:outputLabel value="Sexo:" for="sexo"/>
+                <h:outputText id="sexo" value="#{fielBean.fiel.sexo}"/>
+                                  
+                <p:outputLabel value="Estado Civil" for="estadoCivil" />
+                
+                    <h:outputText id="estadoCivil" value="#{fielBean.fiel.estadoCivil}"/>
+                    
+               
+                   <h:outputLabel value="Telefone" for="telefone" />
+                    <h:outputText id="telefone" 
+                               value="#{fielBean.fiel.telefone}" >
+                        <f:convertNumber pattern="(99)99999-9999"/>
+                    </h:outputText>
+                     <p:outputLabel value="Bairro" for="bairro"/>
+                     <h:outputText id="bairro" value="#{fielBean.fiel.bairro}"  />  
+                    
+                     <p:outputLabel value="Cidade" for="cidade"/>
+                     <h:outputText id="cidade" value="#{fielBean.fiel.cidade.nome} - #{fielBean.fiel.cidade.estado}"/>
+                    
+                    
+                    <p:outputLabel value="CEP" for="cep" />
+                    <h:outputText id="cep" value="#{fielBean.fiel.cep}" />
+            </p:panelGrid>
+            
+                
+            </h:form>
+        </p:dialog>
+
+
+    </ui:define>
+</ui:composition>    

@@ -1,0 +1,131 @@
+<ui:composition template="/WEB-INF/template/layoutpadrao.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="titulo">Pedidos Cadastrados</ui:define>
+            <ui:define name="corpo">
+                <p:growl id="msgGlobal" life="3000"/>
+              <h:form id="frmPedBListagem">
+            <p:dataTable id="tblPedidosB" emptyMessage="Nenhum pedido encontrado."
+                         value="#{pedidoCasamentoBean.pedidos}" var="pedido"
+                         widgetVar="tabelaPedidosB"
+      
+                         paginator="true" rows="8">
+                <f:facet name="header">
+                    Lista de Pedidos
+                </f:facet>
+                <p:column headerText="ID" sortBy="#{pedido.id}"
+                         >
+                    <h:outputText value="#{pedido.id}"/>
+                </p:column>
+
+                <p:column headerText="Nome do Fiel" sortBy="#{pedido.fiel.nome}"
+                          filterBy="#{pedido.fiel.nome}">
+                    <h:outputText value="#{pedido.fiel.nome}"/>
+                </p:column>
+                <p:column headerText="Código da Certidão" sortBy="#{pedido.certidao.id}"
+                          filterBy="#{pedido.certidao.id}">
+                    <h:outputText value="#{pedido.certidao.id}"/>
+                </p:column>
+                
+                <p:column headerText="Data do Pedido" sortBy="#{pedido.dataPedido}"
+                          filterBy="#{pedido.dataPedido}">
+                    <h:outputText value="#{pedido.dataPedido}" >
+                         <f:convertDateTime pattern="dd/MM/yyyy"/>
+                     </h:outputText>
+                </p:column>
+                <p:column headerText="Opções">
+                    
+                    <p:commandButton icon="ui-icon-pencil"
+                                     action="#{pedidoCasamentoBean.pegarCertidao()}"               
+                     oncomplete="PF('dlgPedBEditar').show()"
+                     update=":frmPedBEditar:pnlPedBEditar">
+                        <f:setPropertyActionListener target="#{pedidoCasamentoBean.pedido}"
+                                                     value="#{pedido}"/>
+                     </p:commandButton>
+                    <p:commandButton icon="ui-icon-document"
+                           action="#{pedidoCasamentoBean.pegarCertidao()}"
+                     oncomplete="PF('dlgFielVer').show()"
+                     update=":frmFielVer:pnlFielVer">
+                        <f:setPropertyActionListener target="#{pedidoCasamentoBean.pedido}"
+                                                     value="#{pedido}"/>
+                     </p:commandButton>
+                </p:column>
+                <f:facet name="footer">
+                    
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+                <p:dialog widgetVar="dlgPedBEditar" closable="true" draggable="false"
+                  resizable="false" modal="true" appendTo="@(body)" 
+                  header="Editar Pedido">
+            <h:form id="frmPedBEditar">
+                <p:panelGrid columns="2" id="pnlPedBEditar" style="width: 100%; margin-top: 20px"
+                         columnClasses="rotulo, campo" >
+                    <p:outputLabel value="Nome Completo" for="nome"/>
+                <p:autoComplete id="nome" size="60" maxlength="80" required="true"
+                             requiredMessage="O nome do fiel deve ser informado!"
+                             value="#{pedidoCasamentoBean.pedido.fiel}"  completeMethod="#{pedidoCasamentoBean.sugerirFieis}" 
+                          converter="fiel"   var="f" itemLabel="#{f.nome}" itemValue="#{f}" 
+                          forceSelection="true" onkeypress="return nomes(event)" />
+                <p:outputLabel value="Nome dos Conjugues" for="certidao"/>
+                <p:autoComplete id="certidao" size="60" maxlength="80" required="true"
+                             requiredMessage="Os nomes dos conjugues devem ser informados!"
+                             value="#{pedidoCasamentoBean.pedido.certidao}"  completeMethod="#{pedidoCasamentoBean.sugerirCasamentos}" 
+                          converter="casamento"   var="c" itemLabel="#{c.noivo.nome} e #{c.noiva.nome}" itemValue="#{c}" 
+                          forceSelection="true" onkeypress="return nomes(event)" />
+                
+                <p:outputLabel value="Status:" for="status"/>
+                <p:selectOneListbox id="status"   required="true"
+                                    requiredMessage="Informe o STATUS!" value="#{pedidoCasamentoBean.pedido.status}">
+                    <f:selectItem itemLabel="Pendente" itemValue="PENDENTE"/>
+                    <f:selectItem itemLabel="Aprovado" itemValue="APROVADO" itemDisabled="true"/>
+                    <f:selectItem itemLabel="Rejeitado" itemValue="REJEITADO" itemDisabled="true"/>
+                    <f:selectItem itemLabel="Impresso" itemValue="IMPRESSO" itemDisabled="true"/>
+                </p:selectOneListbox>
+                
+                   
+                    <p:outputLabel value="Valor" for="valor"/>
+                    <p:inputText id="valor" type="number"  styleClass="moeda" value="#{pedidoCasamentoBean.pedido.valor}"/>
+                
+                </p:panelGrid>
+                                       <h:panelGrid columns="2">
+                    <p:commandButton value="Gravar Edição" 
+                                     actionListener="#{pedidoCasamentoBean.editarPedido()}"
+                                  update=":frmPedBListagem:tblPedidosB :msgGlobal"
+                                  oncomplete="PF('dlgPedBEditar').hide()"/>
+                    
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+        
+                <!-- Dialogo de visualização -->
+             <p:dialog widgetVar="dlgFielVer" closable="true" draggable="false"
+                  resizable="false" modal="true" appendTo="@(body)" 
+                  header="Dados do Pedido" >
+            <h:form id="frmFielVer">
+                <p:panelGrid columns="1" id="pnlFielVer" style="width: 100%; margin-top: 20px"
+                         columnClasses="rotulo, campo" >
+                
+                    <p:outputLabel value="Código do Pedido: #{pedidoCasamentoBean.pedido.id}  "  />
+                    <p:outputLabel value="Fiel: #{pedidoCasamentoBean.pedido.fiel.nome}  " />
+                    <p:outputLabel value="Noivo: #{pedidoCasamentoBean.pedido.certidao.noivo.nome}  " />
+                    <p:outputLabel value="Noiva: #{pedidoCasamentoBean.pedido.certidao.noiva.nome}  " />
+                    <h:outputText id="dataNascimento"  value="#{pedidoCasamentoBean.pedido.certidao.dataCasamento}" >
+                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                </h:outputText>
+                    <p:outputLabel value="Paroco do Casamento: #{pedidoCasamentoBean.pedido.certidao.paroco.nome}"/>
+                    <p:outputLabel value="Status do Pedido: #{pedidoCasamentoBean.pedido.status}"/>
+                                  
+                  </p:panelGrid>
+            
+                
+            </h:form>
+        </p:dialog>
+
+
+    </ui:define>
+</ui:composition>    

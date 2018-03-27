@@ -1,0 +1,187 @@
+<ui:composition template="/WEB-INF/template/layoutpadrao.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="titulo">Batismos Cadastrados</ui:define>
+    <ui:define name="corpo">
+        <p:growl id="msgGlobal" life="3000"/>
+        <h:form id="frmBatismoListagem">
+            <p:dataTable id="tblBatismos" emptyMessage="Nenhum batizado encontrado."
+                         value="#{batismoBean.batismos}" var="batismo"
+                         widgetVar="tabelaBatismos"
+
+                         paginator="true" rows="8">
+                <f:facet name="header">
+                    Lista de Batismos
+                </f:facet>
+                <p:column headerText="ID" sortBy="#{batismo.id}"
+                          >
+                    <h:outputText value="#{batismo.fiel.id}"/>
+                </p:column>
+
+                <p:column headerText="Nome" sortBy="#{batismo.fiel.nome}"
+                          filterBy="#{batismo.fiel.nome}">
+                    <h:outputText value="#{batismo.fiel.nome}"/>
+                </p:column>
+
+                <p:column headerText="Data do Batismo" sortBy="#{batismo.dataBatismo}"
+                          filterBy="#{batismo.dataBatismo}">
+                    <h:outputText value="#{batismo.dataBatismo}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                    </h:outputText>
+                </p:column>
+                <p:column headerText="Opções">
+                    
+                    <p:commandButton icon="ui-icon-pencil"
+                                     oncomplete="PF('dlgBatismoEditar').show()"
+                                     update=":frmBatismoEditar:pnlBatismoEditar">
+                        <f:setPropertyActionListener target="#{batismoBean.batismo}"
+                                                     value="#{batismo}"/>
+                    </p:commandButton>
+                    <p:commandButton icon="ui-icon-document"
+                                     oncomplete="PF('dlgBatismoVer').show()"
+                                     update=":frmBatismoVer:pnlBatismoVer">
+                        <f:setPropertyActionListener target="#{batismoBean.batismo}"
+                                                     value="#{batismo}"/>
+                    </p:commandButton>
+                </p:column>
+                <f:facet name="footer">
+
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+        <p:dialog widgetVar="dlgBatismoEditar" closable="true" draggable="false"
+                  resizable="false" modal="true" appendTo="@(body)" 
+                  header="Editar Batismo">
+            <h:form id="frmBatismoEditar">
+                <p:panelGrid columns="2" id="pnlBatismoEditar" style="width: 100%; margin-top: 20px"
+                             columnClasses="rotulo, campo" >
+
+                    <p:outputLabel value="Nome Completo" for="nome"/>
+                    <p:autoComplete id="nome" size="60" maxlength="80" required="true"
+                                    requiredMessage="O nome do fiel deve ser informado!"
+                                    value="#{batismoBean.batismo.fiel}"  completeMethod="#{batismoBean.sugerirFieis}" 
+                                    converter="fiel"   var="f" itemLabel="#{f.nome}" itemValue="#{f}" 
+                                    forceSelection="true" onkeypress="return nomes(event)" />
+                    <p:outputLabel value="Local de Nascimento" for="localNascimento"/>
+                    <p:autoComplete id="localNascimento" size="60" maxlength="80" required="true"
+                                    requiredMessage="O local de nascimento do fiel deve ser informado!"
+                                    value="#{batismoBean.batismo.cidadeNascimento}"  completeMethod="#{batismoBean.sugerirCidades}" 
+                                    converter="cidade"   var="c" itemLabel="#{c.nome} - #{c.estado}" itemValue="#{c}" 
+                                    forceSelection="true" onkeypress="return nomes(event)"
+                                    placeholder="Cidade - UF"/>
+                    <p:outputLabel value="Data de Nascimento:" for="dataNascimento"/>
+                    <p:calendar id="dataNascimento" required="false" value="#{batismoBean.batismo.dataNascimento}"
+                                pattern="dd/MM/yyyy" readonlyInput="true" navigator="true"
+                                locale="pt" />
+
+                    <p:outputLabel value="Data do Batismo:" for="dataBatismo"/>
+                    <p:calendar id="dataBatismo" required="false" value="#{batismoBean.batismo.dataBatismo}"
+                                pattern="dd/MM/yyyy" readonlyInput="true" navigator="true"
+                                locale="pt" />
+
+
+                    <p:outputLabel value="Status:" for="status"/>
+                    <p:selectOneListbox id="status"   required="true"
+                                        requiredMessage="Informe o STATUS!" value="#{batismoBean.batismo.status}">
+                        <f:selectItem itemLabel="Pendente" itemValue="P"/>
+                        <f:selectItem itemLabel="Aprovado" itemValue="A" itemDisabled="true"/>
+                    </p:selectOneListbox>
+
+
+                    <p:outputLabel value="Nome do Pai" for="nomePai"/>
+                    <p:inputText id="nomePai"  size="60" maxlength="80" 
+                                 value="#{batismoBean.batismo.nomePai}"
+                                 onkeypress="return nomes(event)"/>  
+
+                    <p:outputLabel value="Nome da Mãe" for="nomeMae"/>
+                    <p:inputText id="nomeMae"  size="60" maxlength="80" 
+                                 value="#{batismoBean.batismo.nomeMae}" 
+                                 onkeypress="return nomes(event)"/>
+
+                    <p:outputLabel value="Nome do Padrinho" for="nomePadrinho"/>
+                    <p:inputText id="nomePadrinho"  size="60" maxlength="80" 
+                                 value="#{batismoBean.batismo.nomePadrinho}" 
+                                 onkeypress="return nomes(event)"/>  
+
+                    <p:outputLabel value="Nome da Madrinha" for="nomeMadrinha"/>
+                    <p:inputText id="nomeMadrinha"  size="60" maxlength="80" 
+                                 value="#{batismoBean.batismo.nomeMadrinha}" 
+                                 onkeypress="return nomes(event)"/>
+
+
+                    <p:outputLabel value="Paroco" for="paroco"/>
+                    <p:autoComplete id="paroco" size="60" maxlength="80" required="true"
+                                    requiredMessage="O paroco deve ser informado!"
+                                    value="#{batismoBean.batismo.paroco}"  completeMethod="#{batismoBean.sugerirParocos}" 
+                                    converter="usuario"   var="u" itemLabel="#{u.nome}" itemValue="#{u}" 
+                                    forceSelection="true" />
+
+                    <p:outputLabel value="Valor" for="valor"/>
+                    <p:inputText id="valor" type="number"  styleClass="moeda" value="#{batismoBean.batismo.valor}"/>
+
+
+
+
+
+
+                </p:panelGrid>
+
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Gravar Edição" 
+                                     actionListener="#{batismoBean.editarBatismo()}"
+                                     update=":frmBatismoListagem:tblBatismos :msgGlobal"
+                                     oncomplete="PF('dlgBatismoEditar').hide()"/>
+
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+
+        <!-- Dialogo de visualização -->
+        <p:dialog widgetVar="dlgBatismoVer" closable="true" draggable="false"
+                  resizable="false" modal="true" appendTo="@(body)" 
+                  header="Dados do Batismo" >
+            <h:form id="frmBatismoVer">
+                <p:panelGrid columns="2" id="pnlBatismoVer" style="width: 100%; margin-top: 20px"
+                             columnClasses="rotulo, campo" >
+
+                    <p:outputLabel value="Nome Completo" for="nome"/>
+                    <h:outputText id="nome" value="#{batismoBean.batismo.fiel.nome}" />
+                    <p:outputLabel value="Local Nascimento" />
+                    <h:outputText  value="#{batismoBean.batismo.cidadeNascimento.nome} - #{batismoBean.batismo.cidadeNascimento.estado} " />
+                    
+                    <p:outputLabel value="Data de Nascimento:" for="dataNascimento"/>
+                    <h:outputText id="dataNascimento"  value="#{batismoBean.batismo.dataNascimento}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                    </h:outputText>
+                     <p:outputLabel value="Data do Batismo:" />
+                     <h:outputText   value="#{batismoBean.batismo.dataBatismo}" >
+                        <f:convertDateTime pattern="dd/MM/yyyy"/>
+                    </h:outputText>
+                    <p:outputLabel value="Status:" />
+                    <h:outputText  value="#{batismoBean.batismo.status}"/>
+
+                    <p:outputLabel value="Nome do Pai"  />
+                    <h:outputText  value="#{batismoBean.batismo.nomePai}"/>
+                    <p:outputLabel value="Nome da Mãe"  />
+                    <h:outputText  value="#{batismoBean.batismo.nomeMae}"/>
+                    <p:outputLabel value="Nome do Padrinho"  />
+                    <h:outputText  value="#{batismoBean.batismo.nomePadrinho}"/>
+                    <p:outputLabel value="Nome da Madrinha"  />
+                    <h:outputText  value="#{batismoBean.batismo.nomeMadrinha}"/>
+                  
+                    <p:outputLabel value="Paroco"  />
+                    <h:outputText  value="#{batismoBean.batismo.paroco.nome}"/>
+                    
+                  </p:panelGrid>
+
+
+            </h:form>
+        </p:dialog>
+
+
+    </ui:define>
+</ui:composition>    

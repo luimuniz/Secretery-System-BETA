@@ -1,0 +1,121 @@
+<ui:composition template="/WEB-INF/template/layoutpadrao.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="titulo">Nova Certidão de Batismo</ui:define>
+
+    <ui:define name="corpo">
+        <p:growl id="msgGlobal" life="3000"/>
+        <h:form>
+            <p:messages/>
+            <h1>Nova Certidão de Batismo</h1>
+
+            <p:toolbar style="margin-top: 20px">
+                <p:toolbarGroup>
+                    <p:button value="Novo" outcome="/batismo/cadbatismo"/>
+                    <p:commandButton value="Salvar" id="botaoSalvar" update="@form"
+                                     action="#{batismoBean.novoBatismo()}" />
+                </p:toolbarGroup>
+                <p:toolbarGroup align="right">
+                    <p:button value="Pesquisa"  />
+                    <p:button value="Novo Fiel" outcome="/fiel/cadfiel" />
+                    <p:commandButton value="Nova Cidade" onclick="PF('dlgCidade').show(); return false" 
+                                     oncomplete="#{cidadeBean.prepararNovaCidade()}"
+                                     update=":frmNovaCid:pnlNovaCid"/>
+                </p:toolbarGroup>
+            </p:toolbar>
+
+            <p:panelGrid columns="2" id="painel" style="width: 100%; margin-top: 20px"
+                         columnClasses="rotulo, campo">
+
+                <p:outputLabel value="Nome Completo" for="nome"/>
+                <p:autoComplete id="nome" size="60" maxlength="80" required="true"
+                             requiredMessage="O nome do fiel deve ser informado!"
+                             value="#{batismoBean.batismo.fiel}"  completeMethod="#{batismoBean.sugerirFieis}" 
+                          converter="fiel"   var="f" itemLabel="#{f.nome}" itemValue="#{f}" 
+                          forceSelection="true" onkeypress="return nomes(event)" />
+                <p:outputLabel value="Local de Nascimento" for="localNascimento"/>
+                <p:autoComplete id="localNascimento" size="60" maxlength="80" required="true"
+                             requiredMessage="O local de nascimento do fiel deve ser informado!"
+                             value="#{batismoBean.batismo.cidadeNascimento}"  completeMethod="#{batismoBean.sugerirCidades}" 
+                          converter="cidade"   var="c" itemLabel="#{c.nome} - #{c.estado}" itemValue="#{c}" 
+                          forceSelection="true" onkeypress="return nomes(event)"
+                          placeholder="Cidade - UF"/>
+                <p:outputLabel value="Data de Nascimento:" for="dataNascimento"/>
+                <p:calendar id="dataNascimento" required="false" value="#{batismoBean.batismo.dataNascimento}"
+                            pattern="dd/MM/yyyy" readonlyInput="true" navigator="true"
+                            locale="pt"/>
+                
+                <p:outputLabel value="Data do Batismo:" for="dataBatismo"/>
+                <p:calendar id="dataBatismo" required="false" value="#{batismoBean.batismo.dataBatismo}"
+                            pattern="dd/MM/yyyy" readonlyInput="true" navigator="true"
+                            locale="pt"/>
+                
+               
+                <p:outputLabel value="Status:" for="status"/>
+                <p:selectOneListbox id="status"   required="true"
+                                  requiredMessage="Informe o STATUS!" value="#{batismoBean.batismo.status}">
+                    <f:selectItem itemLabel="Pendente" itemValue="P"/>
+                    <f:selectItem itemLabel="Aprovado" itemValue="A" itemDisabled="true"/>
+                </p:selectOneListbox>
+                
+                   
+                     <p:outputLabel value="Nome do Pai" for="nomePai"/>
+                     <p:inputText id="nomePai"  size="60" maxlength="80" 
+                                  value="#{batismoBean.batismo.nomePai}"
+                                  onkeypress="return nomes(event)"/>  
+                     
+                     <p:outputLabel value="Nome da Mãe" for="nomeMae"/>
+                     <p:inputText id="nomeMae"  size="60" maxlength="80" 
+                                  value="#{batismoBean.batismo.nomeMae}" 
+                                  onkeypress="return nomes(event)"/>
+                     
+                     <p:outputLabel value="Nome do Padrinho" for="nomePadrinho"/>
+                     <p:inputText id="nomePadrinho"  size="60" maxlength="80" 
+                                  value="#{batismoBean.batismo.nomePadrinho}" 
+                                  onkeypress="return nomes(event)"/>  
+                     
+                     <p:outputLabel value="Nome da Madrinha" for="nomeMadrinha"/>
+                     <p:inputText id="nomeMadrinha"  size="60" maxlength="80" 
+                                  value="#{batismoBean.batismo.nomeMadrinha}" 
+                                  onkeypress="return nomes(event)"/>
+                   
+                    
+                     <p:outputLabel value="Paroco" for="paroco"/>
+                     <p:autoComplete id="paroco" size="60" maxlength="80" required="true"
+                             requiredMessage="O paroco deve ser informado!"
+                             value="#{batismoBean.batismo.paroco}"  completeMethod="#{batismoBean.sugerirParocos}" 
+                          converter="usuario"   var="u" itemLabel="#{u.nome}" itemValue="#{u}" 
+                          forceSelection="true" />
+                     
+                     <p:outputLabel value="Valor" for="valor"/>
+                     <p:inputText id="valor" type="number"  styleClass="moeda" value="#{batismoBean.batismo.valor}"/>
+                     
+                       </p:panelGrid>
+            
+                    </h:form>
+        <p:dialog header="Nova Cidade" widgetVar="dlgCidade" draggable="false" 
+                  resizable="false" modal="true" hideEffect="explode" >
+            <h:form id="frmNovaCid">
+                
+                <h:panelGrid columns="2" id="pnlNovaCid" >
+                    
+                    <p:outputLabel value="Nome" for="nomeCidade"/>
+                    <p:inputText id="nomeCidade" value="#{cidadeBean.cidade.nome}" 
+                                 binding="#{cidadeBean.nome}" size="20" maxlength="50"
+                                 onkeypress="return nomes(event)"/>
+                    <p:outputLabel value="Estado"  for="estado"/>
+                     <p:inputText id="estado" value="#{cidadeBean.cidade.estado}"
+                                  binding="#{cidadeBean.estado}" size="20" maxlength="50"
+                                  onkeypress="return nomes(event)"/>
+                </h:panelGrid>
+                <p:commandButton value="Salvar" actionListener="#{cidadeBean.novaCidade()}"
+                                 oncomplete="PF('dlgCidade').hide()" update=":msgGlobal"/>
+                 </h:form>
+            </p:dialog>
+   
+    </ui:define>
+</ui:composition>

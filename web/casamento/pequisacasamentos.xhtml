@@ -1,0 +1,213 @@
+<ui:composition template="/WEB-INF/template/layoutpadrao.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="titulo">Casamentos Cadastrados</ui:define>
+            <ui:define name="corpo">
+                <p:growl id="msgGlobal" life="3000"/>
+              <h:form id="frmCasamentoListagem">
+            <p:dataTable id="tblCasamentos" emptyMessage="Nenhum casamento encontrado."
+                         value="#{casamentoBean.casamentos}" var="casamento"
+                         widgetVar="tabelaCasamentos"
+      
+                         paginator="true" rows="8">
+                <f:facet name="header">
+                    Lista de Casamentos
+                </f:facet>
+                <p:column headerText="ID" sortBy="#{casamento.id}"
+                         >
+                    <h:outputText value="#{casamento.id}"/>
+                </p:column>
+
+                <p:column headerText="Noivo" sortBy="#{casamento.noivo.nome}"
+                          filterBy="#{casamento.noivo.nome}">
+                    <h:outputText value="#{casamento.noivo.nome}"/>
+                </p:column>
+                
+                <p:column headerText="Noiva" sortBy="#{casamento.noiva.nome}"
+                          filterBy="#{casamento.noiva.nome}">
+                    <h:outputText value="#{casamento.noiva.nome}"/>
+                </p:column>
+                
+                                
+                <p:column headerText="Data do Casamento" sortBy="#{casamento.dataCasamento}"
+                          filterBy="#{casamento.dataCasamento}">
+                    <h:outputText value="#{casamento.dataCasamento}" >
+                         <f:convertDateTime pattern="dd/MM/yyyy"/>
+                     </h:outputText>
+                </p:column>
+                <p:column headerText="Opções">
+                    
+                    <p:commandButton icon="ui-icon-pencil"
+                     oncomplete="PF('dlgCasamentoEditar').show()"
+                     update=":frmCasamentoEditar:pnlCasamentoEditar">
+                        <f:setPropertyActionListener target="#{casamentoBean.casamento}"
+                                                     value="#{casamento}"/>
+                     </p:commandButton>
+                    <p:commandButton icon="ui-icon-document"
+                     oncomplete="PF('dlgCasamentoVer').show()"
+                     update=":frmCasamentoVer:pnlCasamentoVer">
+                        <f:setPropertyActionListener target="#{casamentoBean.casamento}"
+                                                     value="#{casamento}"/>
+                     </p:commandButton>
+                </p:column>
+                <f:facet name="footer">
+                    
+                </f:facet>
+            </p:dataTable>
+        </h:form>
+                <p:dialog widgetVar="dlgCasamentoEditar" closable="true" draggable="false"
+                  resizable="false" modal="true" appendTo="@(body)" 
+                  header="Editar Casamento">
+            <h:form id="frmCasamentoEditar">
+                <p:panelGrid columns="2" id="pnlCasamentoEditar" style="width: 100%; margin-top: 20px"
+                         columnClasses="rotulo, campo" >
+
+                <p:outputLabel value="Nome do Noivo" for="nomeNoivo"/>
+                <p:autoComplete id="nomeNoivo" size="60" maxlength="80" required="true"
+                             requiredMessage="O nome do noivo deve ser informado!"
+                             value="#{casamentoBean.casamento.noivo}"  completeMethod="#{casamentoBean.sugerirFieisSolteiros}" 
+                          converter="fiel"   var="f" itemLabel="#{f.nome}" itemValue="#{f}" 
+                          forceSelection="true"
+                          onkeypress="return nomes(event)" />
+                <p:outputLabel value="Data de Nascimento do Noivo:" for="dataNascNoivo"/>
+                <p:calendar id="dataNascNoivo" required="false" value="#{casamentoBean.casamento.dataNascimentoNoivo}"
+                            pattern="dd/MM/yyyy" readonlyInput="true" navigator="true"
+                            locale="pt" maxdate="#{casamentoBean.getDataMaxima()}"/>
+                <p:outputLabel value="Local de Nascimento do Noivo" for="localNascNoivo"/>
+                <p:autoComplete id="localNascNoivo"  required="true"
+                             requiredMessage="O local de nascimento do noivo deve ser informado!"
+                             value="#{casamentoBean.casamento.cidadeNascimentoNoivo}"  completeMethod="#{casamentoBean.sugerirCidades}" 
+                          converter="cidade"   var="c" itemLabel="#{c.nome} - #{c.estado}" itemValue="#{c}" 
+                          forceSelection="true" 
+                          onkeypress="return nomes(event)"/>
+               
+                
+                <p:outputLabel value="Nome da Noiva" for="nomeNoiva"/>
+                <p:autoComplete id="nomeNoiva" size="60" maxlength="80" required="true"
+                             requiredMessage="O local de nascimento da noiva deve ser informado!"
+                             value="#{casamentoBean.casamento.noiva}"  completeMethod="#{casamentoBean.sugerirFieisSolteiras}" 
+                          converter="fiel"   var="f" itemLabel="#{f.nome}" itemValue="#{f}" 
+                          forceSelection="true" 
+                          onkeypress="return nomes(event)"/>
+                 <p:outputLabel value="Data de Nascimento da Noiva:" for="dataNascNoiva"/>
+                 <p:calendar id="dataNascNoiva" required="false" value="#{casamentoBean.casamento.dataNascimentoNoiva}"
+                            pattern="dd/MM/yyyy" readonlyInput="true" navigator="true"
+                            locale="pt" maxdate="#{casamentoBean.getDataMaxima()}" />
+                <p:outputLabel value="Local de Nascimento da Noiva" for="localNascNoiva"/>
+                <p:autoComplete id="localNascNoiva"  required="true"
+                             requiredMessage="O local de nascimento da noiva deve ser informado!"
+                             value="#{casamentoBean.casamento.cidadeNascimentoNoiva}"  completeMethod="#{casamentoBean.sugerirCidades}" 
+                          converter="cidade"   var="c" itemLabel="#{c.nome} - #{c.estado}" itemValue="#{c}" 
+                          forceSelection="true" onkeypress="return nomes(event)"/>
+               
+               
+                <p:outputLabel value="Data do Casamento:" for="dataCasamento"/>
+                <p:calendar id="dataCasamento" required="false" value="#{casamentoBean.casamento.dataCasamento}"
+                            pattern="dd/MM/yyyy" readonlyInput="true" navigator="true"
+                            locale="pt"/>
+               
+                <p:outputLabel value="Status:" for="status"/>
+                <p:selectOneListbox id="status"   required="true"
+                                  requiredMessage="Informe o STATUS!" value="#{casamentoBean.casamento.status}">
+                    <f:selectItem itemLabel="Pendente" itemValue="Pendente"/>
+                    <f:selectItem itemLabel="Aprovado" itemValue="Aprovado" itemDisabled="true"/>
+                </p:selectOneListbox>
+                
+                   
+  
+                     <p:outputLabel value="1ª Testemunha" for="nomeTestemunha1"/>
+                     <p:inputText id="nomeTestemunha1" size="60" maxlength="80" 
+                                  value="#{casamentoBean.casamento.testemunha1}"
+                                  onkeypress="return nomes(event)"/>
+                     
+                     <p:outputLabel value="2ª Testemunha" for="nomeTestemunha2"/>
+                     <p:inputText id="nomeTestemunha2"  size="60" maxlength="80" 
+                                  value="#{casamentoBean.casamento.testemunha2}" 
+                                  onkeypress="return nomes(event)"/>
+                   
+                    <p:outputLabel value="Paroco" for="paroco"/>
+                     <p:autoComplete id="paroco" size="60" maxlength="80" required="true"
+                             requiredMessage="O paroco deve ser informado!"
+                             value="#{casamentoBean.casamento.paroco}"  completeMethod="#{casamentoBean.sugerirParocos}" 
+                          converter="usuario"   var="u" itemLabel="#{u.nome}" itemValue="#{u}" 
+                          forceSelection="true" onkeypress="return nomes(event)" />
+
+                     
+                     <p:outputLabel value="Valor" for="valor"/>
+                     <p:inputText id="valor" type="number" styleClass="moeda" value="#{casamentoBean.casamento.valor}"/>
+       
+                    
+            </p:panelGrid>
+            
+                <h:panelGrid columns="2">
+                    <p:commandButton value="Gravar Edição" 
+                                     actionListener="#{casamentoBean.editarCasamento()}"
+                                  update=":frmCasamentoListagem:tblCasamentos :msgGlobal"
+                                  oncomplete="PF('dlgCasamentoEditar').hide()"/>
+                    
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+        
+                <!-- Dialogo de visualização -->
+             <p:dialog widgetVar="dlgCasamentoVer" closable="true" draggable="false"
+                  resizable="false" modal="true" appendTo="@(body)" 
+                  header="Dados do Casamento" >
+            <h:form id="frmCasamentoVer">
+                <p:panelGrid columns="2" id="pnlCasamentoVer" style="width: 100%; margin-top: 20px"
+                         columnClasses="rotulo, campo" >
+
+                <p:outputLabel value="Noivo" for="noivo"/>
+                <h:outputText id="noivo" value="#{casamentoBean.casamento.noivo.nome}" />
+                <p:outputLabel value="Data de Nascimento do Noivo:" for="dataNascNoivo"/>
+                <h:outputText id="dataNascNoivo" value="#{casamentoBean.casamento.dataNascimentoNoivo}">
+                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                </h:outputText>
+                <p:outputLabel value="Local de Nascimento do Noivo" />
+                <h:outputText value="#{casamentoBean.casamento.cidadeNascimentoNoivo.nome} - #{casamentoBean.casamento.cidadeNascimentoNoivo.estado}"/>
+                
+                <p:outputLabel value="Noiva" for="noiva"/>
+                <h:outputText id="noiva" value="#{casamentoBean.casamento.noiva.nome}" />
+                <p:outputLabel value="Data de Nascimento da Noiva:" for="dataNascNoiva"/>
+                <h:outputText id="dataNascNoiva" value="#{casamentoBean.casamento.dataNascimentoNoiva}">
+                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                </h:outputText>
+                <p:outputLabel value="Local de Nascimento da Noiva" />
+                <h:outputText value="#{casamentoBean.casamento.cidadeNascimentoNoiva.nome} - #{casamentoBean.casamento.cidadeNascimentoNoiva.estado}"/>
+               
+                <p:outputLabel value="Data do Casamento:" />
+                <h:outputText id="dataNascimento"  value="#{casamentoBean.casamento.dataCasamento}" >
+                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                </h:outputText>
+                <p:outputLabel value="1ª Testemunha:" />
+                <h:outputText  value="#{casamentoBean.casamento.testemunha1}"/>
+                <p:outputLabel value="2ª Testemunha:" />
+                <h:outputText  value="#{casamentoBean.casamento.testemunha1}"/>
+                                  
+                <p:outputLabel value="Paroco"  />
+                
+                <h:outputText  value="#{casamentoBean.casamento.paroco.nome}"/>
+                <p:outputLabel value="Cidade" for="cidade"/>
+                <h:outputText id="cidade" value="#{casamentoBean.casamento.cidade}"/>    
+               
+                    <p:outputLabel value="Valor" />
+                     <h:outputText  value="#{casamentoBean.casamento.valor}"  />  
+                    
+                     
+                    
+                    
+                   <p:outputLabel value="Status" />
+                   <h:outputText  value="#{casamentoBean.casamento.status}" />
+            </p:panelGrid>
+            
+                
+            </h:form>
+        </p:dialog>
+
+
+    </ui:define>
+</ui:composition>    
